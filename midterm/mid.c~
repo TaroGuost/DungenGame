@@ -1,0 +1,17 @@
+#include <stdio.h>
+#include <string.h>
+
+
+
+
+int main()
+{
+  const char *s = "Taylor";
+  char *w = "ssssssss";
+  char q[] = "lllll";
+  char t[10]= "rr";
+  s = "ls";
+  //strcpy(q,s);
+  //strcat(*s," Mckessie");
+  printf("%s\n", s);
+}
