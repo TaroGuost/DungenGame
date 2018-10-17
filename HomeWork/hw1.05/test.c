@@ -934,13 +934,29 @@ int GeneStair(struct point base[21][80])
 	    }
 	} 
     }
+}
 
+int GeneDStair(struct point base[21][80])
+{
+  int i,j , x;
 
+  x =0;
   
+  for(i = 19 ; i >= 0 ; i --)
+    {
+      for(j = 79 ; j >= 0 ; j--)
+	{
+	  if(base[i][j].value == '.')
+	    {
+	      base[i][j].value = '>';
+	      return i*80+j;
+	    }
+	} 
+    }
 }
 
 
-void PrintMonster(WINDOW **game ,struct Monster *ms , int mc , struct point base[21][80] , int px , int py , int stair)
+void PrintMonster(WINDOW **game ,struct Monster *ms , int mc , struct point base[21][80] , int px , int py , int stair , int Dstair)
 {
   int i,j;
   
@@ -955,13 +971,16 @@ void PrintMonster(WINDOW **game ,struct Monster *ms , int mc , struct point base
 	  if(base[i][j].value == ' ' && base[i][j].hardness == 0)
 	    {
 	      base[i][j].value = '#';
-	    }
+	    }	
 
 	  if(i == stair/80 && j == stair%80)
 	    {
-	       base[i][j].value ='<';
-	       // mvwprintw(*game,i,j,"%c" , base[i][j].value);
-	       //refresh();
+	       base[i][j].value ='<';	     
+	    }
+
+	   if(i == Dstair/80 && j == Dstair%80)
+	    {
+	       base[i][j].value ='>';	     
 	    }
 
 	  int temp = isSamePlace(ms,mc,i,j);
@@ -979,12 +998,10 @@ void PrintMonster(WINDOW **game ,struct Monster *ms , int mc , struct point base
 	   if(i == px && j == py)
 	  {
 	   mvwprintw(*game,i,j,"%c" , '@');
-	  // refresh();
 	  }
-	  
+  
 	}
     }
-  //refresh();
 
 }
 
@@ -1196,7 +1213,7 @@ void MonsterList(struct Monster *M, int mc , int px , int py)
   
 }
 
-char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char store, struct Monster *Ori,int mc,int stair)
+char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char store, struct Monster *Ori,int mc,int stair, int Dstair)
 {
 
   base[M->x][M->y].value = store;
@@ -1290,16 +1307,22 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	  check =false;
 	  store =  base[M->x][M->y].value;
 	  break;
-	case 'q':
+	case 'Q':
 	  check = false;
 	  store = '!';
 	  break;
 	case 'm':
 	  MonsterList(Ori,mc,M->x,M->y);
-	  PrintMonster(game, Ori , mc,base,M->x,M->y,stair);
+	  PrintMonster(game, Ori , mc,base,M->x,M->y,stair,Dstair);
 	  break;
-	case 'i':
+	case '<':
 	  if(M->x == stair/80 && M->y == stair%80)
+	    {
+	      store = '^';
+	      check = false;
+	    }
+	case '>':
+	  if(M->x == Dstair/80 && M->y == Dstair%80)
 	    {
 	      store = '^';
 	      check = false;
@@ -1337,6 +1360,7 @@ bool MonsterMove(struct Monster *Monsters , int mc, struct point base[21][80] , 
   bool seeP = false;
   char store = '.';
   const int stair = GeneStair(base);
+  const int Dstair = GeneDStair(base);
 
   
   for(i = 0 ; i < mc ; i++)
@@ -1452,9 +1476,9 @@ bool MonsterMove(struct Monster *Monsters , int mc, struct point base[21][80] , 
 	  break;
 	case '@':
 	  usleep(250000);
-	  PrintMonster(&game,Monsters, mc , base,px,py , stair);
+	  PrintMonster(&game,Monsters, mc , base,px,py , stair , Dstair);
 	  //tempprint(&game);
-	  store = PCMove((Monsters+n),base,&game,store,Monsters,mc,stair);
+	  store = PCMove((Monsters+n),base,&game,store,Monsters,mc,stair,Dstair);
 	  px = (Monsters+n)->x;
 	  py = (Monsters+n)->y;
 	  break;

@@ -932,15 +932,15 @@ int GeneStair(struct point base[21][80])
 	      base[i][j].value = '<';
 	      return i*80+j;
 	    }
-	}
-
-      
+	} 
     }
 
+
+  
 }
 
 
-void PrintMonster(struct Monster *ms , int mc , struct point base[21][80] , int px , int py , int stair)
+void PrintMonster(WINDOW **game ,struct Monster *ms , int mc , struct point base[21][80] , int px , int py , int stair)
 {
   int i,j;
   
@@ -959,31 +959,32 @@ void PrintMonster(struct Monster *ms , int mc , struct point base[21][80] , int 
 
 	  if(i == stair/80 && j == stair%80)
 	    {
-	      base[i][j].value ='<';
-	      mvprintw(i,j,"%c" , base[i][j].value);
+	       base[i][j].value ='<';
+	       // mvwprintw(*game,i,j,"%c" , base[i][j].value);
+	       //refresh();
 	    }
 
 	  int temp = isSamePlace(ms,mc,i,j);
 	  if(temp  != -1)
 	    {
-	      mvprintw(i,j,"%lx" , (ms+temp)->type);
-	      refresh();
+	      mvwprintw(*game,i,j,"%lx" , (ms+temp)->type);
+	      //refresh();
 	    }
 	  else
 	    {
-	      mvprintw(i,j,"%c" , base[i][j].value);
-	      refresh();
+	      mvwprintw(*game,i,j,"%c" , base[i][j].value);
+	      //refresh();
 	    }
 
-	  if(i == px && j == py)
-	    {
-	      mvprintw(i,j,"%c" , '@');
-	      refresh();
-	    }
+	   if(i == px && j == py)
+	  {
+	   mvwprintw(*game,i,j,"%c" , '@');
+	  // refresh();
+	  }
 	  
 	}
-      printf("\n");
     }
+  //refresh();
 
 }
 
@@ -1104,82 +1105,98 @@ void addPlayer(struct Monster *M , int mc , int px , int py)
   (M+mc)->speed = 0;
 }
 
-void PrintList(WINDOW **list,int mc, int px ,int py,struct Monster *M)
+void PrintList(WINDOW **list,int mc, int px ,int py,struct Monster *M,int n)
 {
   int i,j;
+
+  //mvwprintw(*list,0,9 , "MonsterList");
+
   
-  for(i = 0 ;i < mc ; i++)
+  for(i =0  ; i < 5 ; i++)
     {
-      int Rx = px - (M+i)->x;
-      int Ry = py - (M+i)->y;
+      int Rx = px - (M+i+n)->x;
+      int Ry = py - (M+i+n)->y;
 	  
       if(Rx > 0 && Ry>0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d North and %d West ",(M+i)->type , Rx , Ry);
+	  mvwprintw(*list,i+1,1,"%lx, %d North and %d West ",(M+i+n)->type , Rx , Ry);
 	}
       else if(Rx > 0 && Ry < 0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d North and %d East ",(M+i)->type , Rx , (Ry*-1));
+	  mvwprintw(*list,i+1,1,"%lx, %d North and %d East ",(M+i+n)->type , Rx , (Ry*-1));
 	}
       else if(Rx < 0 && Ry > 0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d South and %d West ",(M+i)->type , Rx*-1 , Ry);
+	  mvwprintw(*list,i+1,1,"%lx, %d South and %d West ",(M+i+n)->type , Rx*-1 , Ry);
 	}
       else if(Rx < 0 && Ry < 0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d South and %d East ",(M+i)->type , Rx*-1 , Ry*-1);
+	  mvwprintw(*list,i+1,1,"%lx, %d South and %d East ",(M+i+n)->type , Rx*-1 , Ry*-1);
 	}
       else if(Rx > 0 && Ry == 0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d North",(M+i)->type , Rx);
+	  mvwprintw(*list,i+1,1,"%lx, %d North",(M+i+n)->type , Rx);
 	}
       else if(Rx < 0 && Ry == 0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d South",(M+i)->type , Rx*-1);
+	  mvwprintw(*list,i+1,1,"%lx, %d South",(M+i+n)->type , Rx*-1);
 	}
       else if(Rx == 0 && Ry < 0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d West ",(M+i)->type , Ry*-1);
+	  mvwprintw(*list,i+1,1,"%lx, %d West ",(M+i+n)->type , Ry*-1);
 	}
       else if(Rx == 0 && Ry > 0)
 	{
-	  mvwprintw(*list,i,0,"%lx, %d East ",(M+i)->type , Rx*-1);
+	  mvwprintw(*list,i+1,1,"%lx, %d East ",(M+i+n)->type , Rx*-1);
 	}
        
     }
+
+   
 
 }
 
 void MonsterList(struct Monster *M, int mc , int px , int py)
 {
   int i = 0;
+  int n = 0;
 
   WINDOW *list;
-  list = newwin(50,50,0,0);
+  list = newwin(8,30,10,20);
   keypad(list,true);
-
+  wborder(list,'*','*','*','*','*','*','*','*');
   while(i != 1)
     {
-      PrintList(&list,mc,px,py,M);
+      PrintList(&list,mc,px,py,M,n);
       int ch = wgetch(list);
       switch(ch)
 	{
 	case 'e':
 	  i =1;
 	  break;
+	case KEY_DOWN:
+	  if(n+5<mc)
+	    n++;
+	  break;
+	case KEY_UP:
+	  if(n>0)
+	    n--;
+	  break;
 	}
       
     }
   
 
-  //  clrtoeol();
-  //refresh();
+  //werase(list);
+  wclrtoeol(list);
+  wrefresh(list);
+  delwin(list);
   //endwin();
   
   
 }
 
-char PCMove(struct Monster *M , struct point base[21][80], WINDOW *game , char store, struct Monster *Ori,int mc,int stair)
+char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char store, struct Monster *Ori,int mc,int stair)
 {
 
   base[M->x][M->y].value = store;
@@ -1187,10 +1204,10 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW *game , char s
 
    
     
-  while(check ==true)
-    {
+   while(check == true)
+  {
        
-      int ch = wgetch(game);
+      int ch = wgetch(*game);
       switch(ch)
 	{
 	case KEY_DOWN:
@@ -1279,6 +1296,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW *game , char s
 	  break;
 	case 'm':
 	  MonsterList(Ori,mc,M->x,M->y);
+	  PrintMonster(game, Ori , mc,base,M->x,M->y,stair);
 	  break;
 	case 'i':
 	  if(M->x == stair/80 && M->y == stair%80)
@@ -1289,13 +1307,26 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW *game , char s
 	  break;
 	      
 	}
-    }
+      }
 
  	
   return store;
 
   
 }
+
+void tempprint(WINDOW** temp)
+{
+  int i , j ;
+  for(i = 0 ; i < 21 ; i++)
+    {
+      for(j = 0 ; j <80;j++)
+	{
+	  mvwprintw(*temp,i,j,"%c" , '*');
+	}
+    }
+}
+
 bool MonsterMove(struct Monster *Monsters , int mc, struct point base[21][80] , int px , int py)
 {
   addPlayer(Monsters , mc , px ,py);
@@ -1421,9 +1452,9 @@ bool MonsterMove(struct Monster *Monsters , int mc, struct point base[21][80] , 
 	  break;
 	case '@':
 	  usleep(250000);
-	  PrintMonster(Monsters, mc , base,px,py , stair);
-
-	  store = PCMove((Monsters+n),base,game,store,Monsters,mc,stair);
+	  PrintMonster(&game,Monsters, mc , base,px,py , stair);
+	  //tempprint(&game);
+	  store = PCMove((Monsters+n),base,&game,store,Monsters,mc,stair);
 	  px = (Monsters+n)->x;
 	  py = (Monsters+n)->y;
 	  break;
@@ -1440,6 +1471,9 @@ bool MonsterMove(struct Monster *Monsters , int mc, struct point base[21][80] , 
 
       if(store == '^')
 	{
+	  clrtoeol();
+	  refresh();
+	  endwin();
 	  return true;
 	}
 	 
@@ -1730,7 +1764,7 @@ int main (int argc , char *argv[])
 	{
 	  isload = true;
 	}
-      if(strcmp("--nummon" , argv[i]) == 0)
+      if(strcmp("--n" , argv[i]) == 0)
 	{
 	  if(argv[i+1] != NULL)
 	    {
