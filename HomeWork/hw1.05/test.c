@@ -1128,8 +1128,13 @@ void PrintList(WINDOW **list,int mc, int px ,int py,struct Monster *M,int n)
 
   //mvwprintw(*list,0,9 , "MonsterList");
 
+  int x = 5;
+
+  if(x > mc)
+    x =mc;
   
-  for(i =0  ; i < 5 ; i++)
+  
+  for(i = 0  ; i<x ; i++)
     {
       int Rx = px - (M+i+n)->x;
       int Ry = py - (M+i+n)->y;
@@ -1188,6 +1193,9 @@ void MonsterList(struct Monster *M, int mc , int px , int py)
       int ch = wgetch(list);
       switch(ch)
 	{
+	case 27:
+	  i =1;
+	  break;
 	case 'e':
 	  i =1;
 	  break;
@@ -1227,7 +1235,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
       int ch = wgetch(*game);
       switch(ch)
 	{
-	case KEY_DOWN:
+	case 'j':
 	  if(base[(M->x)+1][M->y].hardness ==0)
 	    {
 	      M->x = (M->x)+1;
@@ -1236,7 +1244,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	      check = false;
 	    }
 	  break;
-	case KEY_UP:
+	case 'k':
 	  if(base[(M->x)-1][M->y].hardness ==0)
 	    {
 	      M->x = (M->x)-1;
@@ -1245,7 +1253,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	      check = false;
 	    }
 	  break;
-	case KEY_LEFT:
+	case 'h':
 	  if(base[M->x][(M->y)-1].hardness ==0)
 	    {
 	      M->y = (M->y)-1;
@@ -1254,7 +1262,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	      check = false;
 	    }
 	  break;
-	case KEY_RIGHT:
+	case 'l':
 	  if(base[M->x][(M->y)+1].hardness ==0)
 	    {
 	      M->y = (M->y)+1;
@@ -1263,7 +1271,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	      check = false;
 	    }
 	  break;
-	case KEY_HOME:
+	case 'y':
 	  if(base[(M->x)-1][(M->y)-1].hardness ==0)
 	    {
 	      M->y = (M->y)-1;
@@ -1273,7 +1281,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	      check = false;
 	    }
 	  break;
-	case KEY_END:
+	case 'u':
 	  if(base[(M->x)-1][(M->y)+1].hardness ==0)
 	    {
 	      M->y = (M->y)+1;
@@ -1283,7 +1291,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	      check = false;
 	    }
 	  break;
-	case KEY_PPAGE:
+	case 'b':
 	  if(base[(M->x)+1][(M->y)-1].hardness ==0)
 	    {
 	      M->y = (M->y)-1;
@@ -1293,7 +1301,7 @@ char PCMove(struct Monster *M , struct point base[21][80], WINDOW **game , char 
 	      check = false;
 	    }
 	  break;
-	case KEY_NPAGE:
+	case 'n':
 	  if(base[(M->x)+1][(M->y)+1].hardness ==0)
 	    {
 	      M->y = (M->y)+1;

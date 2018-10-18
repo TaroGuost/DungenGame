@@ -1,0 +1,6 @@
+10/15/2018
+
+I started this assignment. I First implement a new window and implement all the code for the movement but monster list I first create a windown and print all the map then everytime is player's turn it will wait for the user to input the value if the user input a invaild value it wouldn't keep going until the user going to start a vaild input.
+
+10/16/2018
+	I started to implement the monsterlist. Basiclly I generate a new windown first and the game should pause when it open the Monster List and print 5 Monster maxium on the window, if people want to see more monster they has to use up arraw or down arrow to scroll down or up to view more Monsters.	
