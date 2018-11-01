@@ -1,0 +1,107 @@
+#include <stdio.h>
+
+class point
+{
+public:
+  int x;
+  int y;
+  bool check;
+  char value;
+  int hardness;
+};
+
+class room
+{
+public:
+  int x;
+  int y;
+  int rw;
+  int rl;
+
+
+};
+
+void initialBase ( point b[21][80]);
+
+void generatemap( point Base[21][80] , int *size ,  room *rooms , int playlocation[2])
+{
+
+  int i;
+
+  do
+    {
+      initialBase (Base);
+      *size = CreatRoom (Base, rooms);
+    }
+  while (*size < 5);
+	
+  for (i = 0; i < *size; i++)
+    {
+      int fromx, tox , fromy , toy;
+
+      if (i == *size - 1)
+	{
+	  fromx = ((rooms+i)->x) + rand () % ( (rooms+i)->rl );
+	  tox = (rooms -> x) +  rand () % (rooms->rl);
+	  fromy = ((rooms+i)->y) +rand () % ( ((rooms+i)->rw) );
+	  toy = (rooms -> y) + rand () % ( (rooms->rw));
+	  makeCodder (Base, fromx, fromy,
+		      tox, toy);
+	}
+      else
+	{
+	  fromx = ((rooms+i)->x) + rand () % ( (rooms+i)->rl );
+	  tox = ((rooms +i+1)-> x) +rand () %  ((rooms+i+1)->rl);
+	  fromy = ((rooms+i)->y) + rand () % ( (rooms+i)->rw );
+	  toy = ((rooms+i+1) -> y) + rand () % ( (rooms+i+1)->rw);
+	  makeCodder (Base, fromx, fromy,
+		      tox, toy);
+	}
+
+
+    }
+
+
+
+  playerlocate(rooms,*size,Base,playlocation);
+
+
+}
+
+void initialBase ( point b[21][80])
+{
+  int i, j;
+  for (i = 0; i < 21; i++)
+    {
+      for (j = 0; j < 80; j++)
+	{
+
+	  if (i == 0 || i == 20)
+	    {
+	      b[i][j].value = '-';
+	      b[i][j].x = i;
+	      b[i][j].y = j;
+	      b[i][j].check = false;
+	      b[i][j].hardness = 255;
+	    }
+	  else if (j == 0 || j == 79)
+	    {
+	      b[i][j].value = '|';
+	      b[i][j].x = i;
+	      b[i][j].y = j;
+	      b[i][j].check = false;
+	      b[i][j].hardness = 255;
+	    }
+	  else
+	    {
+	      b[i][j].value = ' ';
+	      b[i][j].x = i;
+	      b[i][j].y = j;
+	      b[i][j].check = false;
+	      b[i][j].hardness = 1+ (rand()%254);
+
+	    }
+	}
+    }
+
+}
