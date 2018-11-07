@@ -1,0 +1,294 @@
+#include <stdio.h>
+#include "map.h"
+
+
+void generatemap( point Base[21][80] , int *size ,  room *rooms , int playlocation[2])
+{
+
+  int i;
+
+  do
+    {
+      initialBase (Base);
+      *size = CreatRoom (Base, rooms);
+    }
+  while (*size < 5);
+	
+  for (i = 0; i < *size; i++)
+    {
+      int fromx, tox , fromy , toy;
+
+      if (i == *size - 1)
+	{
+	  fromx = ((rooms+i)->x) + rand () % ( (rooms+i)->rl );
+	  tox = (rooms -> x) +  rand () % (rooms->rl);
+	  fromy = ((rooms+i)->y) +rand () % ( ((rooms+i)->rw) );
+	  toy = (rooms -> y) + rand () % ( (rooms->rw));
+	  makeCodder (Base, fromx, fromy,
+		      tox, toy);
+	}
+      else
+	{
+	  fromx = ((rooms+i)->x) + rand () % ( (rooms+i)->rl );
+	  tox = ((rooms +i+1)-> x) +rand () %  ((rooms+i+1)->rl);
+	  fromy = ((rooms+i)->y) + rand () % ( (rooms+i)->rw );
+	  toy = ((rooms+i+1) -> y) + rand () % ( (rooms+i+1)->rw);
+	  makeCodder (Base, fromx, fromy,
+		      tox, toy);
+	}
+
+
+    }
+
+
+
+  playerlocate(rooms,*size,Base,playlocation);
+
+
+}
+
+void initialBase ( point b[21][80])
+{
+  int i, j;
+  for (i = 0; i < 21; i++)
+    {
+      for (j = 0; j < 80; j++)
+	{
+
+	  if (i == 0 || i == 20)
+	    {
+	      b[i][j].value = '-';
+	      b[i][j].fake = '-';
+	      b[i][j].x = i;
+	      b[i][j].y = j;
+	      b[i][j].check = false;
+	      b[i][j].hardness = 255;
+	    }
+	  else if (j == 0 || j == 79)
+	    {
+	      b[i][j].value = '|';
+	      b[i][j].fake = '|';
+	      b[i][j].x = i;
+	      b[i][j].y = j;
+	      b[i][j].check = false;
+	      b[i][j].hardness = 255;
+	    }
+	  else
+	    {
+	      b[i][j].value = ' ';
+	      b[i][j].fake = ' ';
+	      b[i][j].x = i;
+	      b[i][j].y = j;
+	      b[i][j].check = false;
+	      b[i][j].hardness = 1+ (rand()%254);
+
+	    }
+	}
+    }
+
+}
+
+int CreatRoom ( point p[21][80],  room *r)
+{
+
+  int i, j;
+  int width = 3;
+  int length = 2;
+  int check = 0;
+  int temp = 0;
+
+  for (i = 1; i < 20; i++)
+    {
+      for (j = 1; j < 79; j++)
+	{
+	  if ((p[i][j].check == false) && ((rand () % 500) % 499 == 0))
+	    {
+	      width =  rand()% 8 + 3;
+	      length = rand()% 8 + 2;
+
+	      temp = check;
+	      check += build (p, i, j, width, length, r+temp);
+	    }
+	}
+    }
+
+
+  return check;
+}
+
+void makeCodder( point p[21][80] , int FromX, int FromY, int ToX, int ToY)
+{
+  int referx = FromX;
+  int refery = FromY;
+  int tempX , tempY;
+  tempX = ToX - FromX;
+
+  while(referx != ToX )
+    {
+      int temp = rand()%100;
+
+      if(p[referx][refery].value != '.' && p[referx][refery].value != '|')
+	{
+	  p[referx][refery].value = '#';
+	  p[referx][refery].hardness = 0;
+
+	  if(temp%88 == 0 && refery > 1 )
+	    {
+	      refery--;
+	      continue;
+	    }
+	  else if(temp%77 == 0 && refery <78)
+	    {
+	      refery++;
+	      continue;
+	    }
+	  else
+	    {
+	      if(tempX<0)
+		referx--;
+	      else
+		referx++;
+	    }
+	}
+      else
+	{
+	  if(tempX<0)
+	    referx--;
+	  else
+	    referx++;
+	}
+    }
+
+  tempY = ToY - refery;
+
+  while(refery != ToY)
+    {
+      int temp = rand()%100;
+
+      if(p[referx][refery].value != '.' && p[referx][refery].value != '|' )
+	{
+	  p[referx][refery].value = '#';
+	  p[referx][refery].hardness = 0;
+
+	  if(temp%88 == 0 && referx > 1)
+	    {
+	      referx--;
+	      continue;
+	    }
+	  else if(temp%77 == 0 && referx <19)
+	    {
+	      referx++;
+	      continue;
+	    }
+	  else
+	    {
+	      if(tempY<0)
+		refery--;
+	      else
+		refery++;
+	    }
+	}
+      else
+	{
+	  if(tempY<0)
+	    refery--;
+	  else
+	    refery++;
+	}
+    }
+
+
+
+  tempX = ToX - referx;
+
+  while(referx != ToX)
+    {
+
+      if(p[referx][refery].value != '.' && p[referx][refery].value != '|')
+	{
+	  p[referx][refery].value = '#';
+	  p[referx][refery].hardness = 0;
+
+	  if(tempX<0)
+	    referx--;
+	  else
+	    referx++;
+
+	}
+      else
+	{
+	  if(tempX<0)
+	    referx--;
+	  else
+	    referx++;
+	}
+
+
+    }
+}
+
+
+int build ( point p[21][80], int x, int y, int width, int length,
+	    room* r)
+{
+
+  int i, j;
+
+  for (i = 0; i < length; i++)
+    {
+      for (j = 0; j < width; j++)
+	{
+	  if (i == 0 && p[x - 1][y + j].check && x != 1)
+	    {
+	      return 0;
+	    }
+	  else if (j == 0 && p[x + i][y - 1].check && y != 1)
+	    {
+	      return 0;
+	    }
+	  else if (x + i >= 20 || y + j >= 79 || p[x + i + 1][y + j + 1].check
+		   || p[x + i][y + j + 1].check || p[x + i + 1][y + j].check)
+	    {
+	      return 0;
+
+	    }
+
+	}
+    }
+
+
+
+  for(i = 0 ; i < length ; i ++)
+    {
+      for(j = 0 ; j < width ; j ++)
+	{
+	  p[x + i][y + j].value = '.';
+	  p[x + i][y + j].check = true; 
+	  p[x+i][y+j].hardness = 0;
+	}
+    }
+
+
+  r->x = x;
+  r->y = y;
+  r->rl = length;
+  r->rw = width;
+
+  return 1;
+}
+
+
+void playerlocate( room *r , int size ,  point p[21][80], int loco[2])
+{
+  int x,y;
+  int rooml = 0;
+  //rooml = rand()%size;
+  x = (r+rooml)->x;
+  y = (r+rooml)->y;
+
+  p[x][y].value = '@';
+
+  loco[0] = p[x][y].x;
+  loco[1] = p[x][y].y;
+
+}

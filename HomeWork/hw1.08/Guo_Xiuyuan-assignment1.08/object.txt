@@ -1,0 +1,17 @@
+BEGIN OBJECT
+NAME a NERF(R) dagger
+TYPE WEAPON
+COLOR MAGENTA
+WEIGHT 1+0d1HIT 0+0d1
+DAM 0+0d1
+ATTR 0+0d1
+VAL 9+1d6
+DODGE 10+0d1
+DEF 0+0d1
+SPEED 0+1d0
+ART FALSE
+RRTY 100
+DESC
+This is a totally wicked looking dagger.  It's got awesome barbs on the backof the blade, a compass on the hilt, and myriad other embelishments thatserve no functional purpose.  You could totally be a deadly assassin with asweet blade like this.  Since it's so light, it won't encumber you.  It'smade out of polyurethane foam.
+.
+END

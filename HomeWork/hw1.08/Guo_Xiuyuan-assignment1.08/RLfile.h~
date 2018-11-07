@@ -1,0 +1,12 @@
+# ifndef RLFILE_H
+# define RLFILE_H
+
+void WriteFile(int size, int playerloco[2] ,  point Base[21][80],  room *r , char *fname);
+
+void loadFile( point p[21][80],  room *r , int *size , char *fname ,int PlayLocation[2]);
+
+void ConvertToEndian(uint32_t *i);
+
+
+
+#endif
