@@ -47,9 +47,10 @@ void objects :: setSybol()
   
 }
 
-void objects :: assignBase(point base[21][80])
+void objects :: assignBase(point base[21][80] , int n)
 {
-  base[x][y].ob = Sybol; 
+  base[x][y].ob = Sybol;
+  base[x][y].position = n;
 }
 
 int objects :: SelectColor()
@@ -415,7 +416,11 @@ int ImportMonster(Monster **M , string Filename)
       
     }
 
+  
+  File.close(); 
+  
   return size;
+
   
 }
 
@@ -451,17 +456,17 @@ void addPlayer( Player *p  , int px , int py)
 
 void ImportObject(vector<objects> *O , string name)
 {
-  ifstream File;
-  File.open(name);
+  ifstream F;
+  F.open(name);
 
   int count = -1;
   string x;
   vector<string> content;
   vector<string> s;
   dices di;
-  objects temp;
+  objects *temp = new objects;
   
-  while(getline(File,x))
+  while(getline(F,x))
     {
       
       if(count != 4 && x != "")
@@ -490,84 +495,87 @@ void ImportObject(vector<objects> *O , string name)
       switch(count)
 	{
 	case -1:
-	  (*O).push_back(temp);
+	  (*O).push_back(*temp);
+	  temp = new objects;
 	  break;
 	case 1:
 	  for(int i = 1 ; i < content.size() ; i++)
-	    temp.name +=  content.at(i) + " ";
+	    (temp)->name +=  content.at(i) + " ";
 	  break;
 	case 3:
 	   for(int i = 1 ; i < content.size() ; i++)
 	    {
 	      if(content.at(i).compare("BLACK") == 0)
-		temp.c[i-1] = BLACK;
+		(temp)->c[i-1] = BLACK;
 	      else if(content.at(i).compare("RED") == 0 )
-		temp.c[i-1] = RED;
+		(temp)->c[i-1] = RED;
 	      else if(content.at(i).compare("GREEN") == 0)
-		temp.c[i-1] = GREEN;
+	        (temp)->c[i-1] = GREEN;
 	      else if(content.at(i).compare("BLUE") == 0)
-		temp.c[i-1] = BLUE;
+	        (temp)->c[i-1] = BLUE;
 	      else if(content.at(i).compare("MAGENTA") == 0)
-		temp.c[i-1] = MAGENTA;
+		(temp)->c[i-1] = MAGENTA;
 	      else if(content.at(i).compare("CYAN") == 0)
-		temp.c[i-1] = CYAN;
+		(temp)->c[i-1] = CYAN;
 	      else if(content.at(i).compare("WHITE") == 0)
-		temp.c[i-1] = WHITE;
+		(temp)->c[i-1] = WHITE;
 	      else if(content.at(i).compare("YELLOW") == 0)
-		temp.c[i-1] = YELLOW;
+		(temp)->c[i-1] = YELLOW;
 	    }
 	  break;
 	case 4:
 	  if(x.compare(".") != 0
 	     && x.compare("DESC") != 0)
 	    {
-	      temp.Desc += x;
-	      temp.Desc.push_back('\n');
+	      (temp)->Desc += x;
+	      (temp)->Desc.push_back('\n');
 	    }
 	  break;
 	case 5:
-	  temp.speed = di.Roll();
+	  (temp)->speed = di.Roll();
 	  break;
 	case 6:
-	  temp.damage =di;
+	  (temp)->damage =di;
 	  break;
 	case 7:
-	  temp.HP = di.Roll();
+	  (temp)->HP = di.Roll();
 	  break;
 	case 9:
 	  {
 	    stringstream gg(content.at(1));
-	    gg >> temp.RRTY;
+	    gg >> (temp)->RRTY;
 	  }
 	  break;
 	case 10: 
-	  temp.type = content.at(1);
-	  temp.setSybol();
+	  (temp)->type = content.at(1);
+	  (temp)->setSybol();
 	  break;
 	case 11: 
-	  temp.weight = di.Roll();
+	  (temp)->weight = di.Roll();
 	  break;
 	case 12:
-	  temp.attr = di.Roll();
+	  (temp)->attr = di.Roll();
 	  break;
 	case 13: 
-	  temp.dodge = di.Roll();
+	  (temp)->dodge = di.Roll();
 	  break;
 	case 14: 
-	  temp.val = di.Roll();
+	  (temp)->val = di.Roll();
 	  break;
 	case 15: 
-	  temp.def = di.Roll();
+	  (temp)->def = di.Roll();
 	  break;
 	case 16: 
 	  if(content.at(1).compare("TRUE") ==0)
-	    temp.art = true;
+	    (temp)->art = true;
 	  else
-	    temp.art = false;
+	    (temp)->art = false;
 	  break;
 	}
       
     }
+
+  F.close();
  
 }
 
@@ -582,21 +590,22 @@ void printobject(vector<objects> O)
     }
 }
 
-void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80])
+void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80] , vector<objects> O)
 {
   int n =0;
-  
-  while(n < (*ob).size())
+  int count = 10 + rand()%5;
+  while(n < 11)
     {
       int random = (rand()%size);
+      int po = rand()%O.size();
       int x = ((rooms+random)->x)+(rand()%(rooms+random)->rl);
-      int y = ((rooms+random)->y)+(rand()%(rooms+random)->rl);
-      if(base[x][y].value == '.')
+      int y = ((rooms+random)->y)+(rand()%(rooms+random)->rw);
+      if(base[x][y].ob == '.' && (rand()%100 <= O.at(po).RRTY) && base[x][y].position ==-1)
 	{
+	  (*ob).push_back(O.at(po));
 	  ((*ob).at(n)).x = x;
 	  ((*ob).at(n)).y = y;
-	  ((*ob).at(n)).assignBase(base);
-	  cout <<"testtest:"<< base[x][y].ob << endl <<endl;
+	  ((*ob).at(n)).assignBase(base , n);
 	  n++;
 	}
     }

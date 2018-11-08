@@ -12,6 +12,7 @@ public:
   bool check;
   char fake;
   char value;
+  char ob = '.';
   int hardness;
 };
 

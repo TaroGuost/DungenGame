@@ -201,8 +201,18 @@ void PrintMonster(WINDOW **game , Monster *ms , int mc ,  point base[21][80] , i
 		  wattroff(*game,COLOR_PAIR(n));
 		}
 	      else
-		{
-		  mvwprintw(*game,i,j,"%c" , base[i][j].fake);
+		{		  
+		  if(base[i][j].ob != '.')
+		    {
+		      int n = ob.at(base[i][j].position).SelectColor();
+		      init_pair(n, n, COLOR_BLACK);
+		      wattron(*game,COLOR_PAIR(n));
+		      mvwprintw(*game,i,j,"%c" , base[i][j].fake);
+		      wattroff(*game,COLOR_PAIR(n));
+		    }
+		  else
+		    mvwprintw(*game,i,j,"%c" , base[i][j].fake);
+	 
 		}
 	    }
 	  else
@@ -218,9 +228,9 @@ void PrintMonster(WINDOW **game , Monster *ms , int mc ,  point base[21][80] , i
 		}
 	      else
 		{
-		  int n = ob.at(0).SelectColor();
 		  if(base[i][j].ob != '.')
 		    {
+		      int n = ob.at(base[i][j].position).SelectColor();
 		      init_pair(n, n, COLOR_BLACK);
 		      wattron(*game,COLOR_PAIR(n));
 		      mvwprintw(*game,i,j,"%c" , base[i][j].ob);
@@ -295,7 +305,7 @@ void PrintLose(Charactor *Monsters)
 	  if(i == 21/2 && j == 80/2)
 	    {
 	      printf("YOU DEAD!!!!   ");
-	      printf("%lx KILLED YOU", Monsters->type);
+	      printf("%c KILLED YOU", ((Monster*)Monsters)->Sybol);
 	    }
 	  else
 	    {
@@ -1045,6 +1055,23 @@ bool Moverand( Charactor *M , point base[21][80] , int mc , bool check , int px 
   return false;
 }
 
+void cleanObject(point base[21][80] , vector<objects> *ob)
+{
+  
+  for(int i = 0 ; i < 21 ; i++)
+    {
+      for(int j = 0 ; j < 80 ; j ++)
+	{
+	  if(base[i][j].ob != '.')
+	    {
+	      base[i][j].ob = '.';
+	      base[i][j].position = -1;
+	    }
+	}
+    }
+
+  (*ob).clear();
+}
 
 int main (int argc , char *argv[])
 {
@@ -1110,21 +1137,23 @@ int main (int argc , char *argv[])
       WriteFile(size , playlocation , Base , rooms , dir);
     }
 
-  ImportObject(&ob,"object.txt");
-  Gobject(&ob,rooms,size,Base);
   Msize = ImportMonster(&Cala,filename);
-  tempc(Cala , Msize);
+  //tempc(Cala , Msize);
   GMonster(rooms , Monsters , size ,Base , MonsterCount , Cala , Msize);
-  printobject(ob);
+  ImportObject(&ob,"object.txt");
+  Gobject(&obj,rooms,size,Base , ob);
+  //printobject(ob);
   
   //PrintMonster(Monsters , MonsterCount, Base,playlocation[0],playlocation[1]);	   
-  bool check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1], &ob);
+  bool check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1], &obj);
 
   while(check)
     {
+      cleanObject(Base , &obj);
       generatemap(Base , &size , rooms , playlocation);
+      Gobject(&obj,rooms,size,Base , ob);
       GMonster(rooms , Monsters , size ,Base , MonsterCount , Cala , Msize);	   
-      check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1],&ob);
+      check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1],&obj);
     }
 
   free(Cala);

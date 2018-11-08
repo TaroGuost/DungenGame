@@ -34,6 +34,27 @@ public:
 class objects
 {
 public:
+  objects()
+  {
+   x = 0;
+   y = 0;
+   Desc = "";
+   type = "";
+   name = "";
+   val = 0;
+   hit = 0;
+   dodge = 0;
+   def = 0;
+   speed = 0;
+   art = false;
+   RRTY = 0;
+   weight = 0;
+   attr = 0;
+   HP = 0;
+   Sybol = '*';
+  }
+  
+public:
   int x;
   int y;
   string Desc;
@@ -53,8 +74,9 @@ public:
   int HP;
   char Sybol;
   void setSybol();
-  void assignBase(point base[21][80]);
+  void assignBase(point base[21][80] , int n);
   int SelectColor();
+  
 };
 
 
@@ -102,6 +124,6 @@ vector<string> Split(string s , char c);
 bool checkCala(Monster *M);
 void ImportObject(vector<objects> *O , string name);
 void printobject(vector<objects> O);
-void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80]);
+void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80] , vector<objects> O);
 
 #endif

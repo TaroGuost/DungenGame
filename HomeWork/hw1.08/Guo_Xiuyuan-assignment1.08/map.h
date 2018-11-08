@@ -14,6 +14,7 @@ public:
   char value;
   char ob = '.';
   int hardness;
+  int position = -1;
 };
 
 class room
