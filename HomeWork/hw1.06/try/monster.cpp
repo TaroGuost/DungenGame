@@ -1,7 +1,74 @@
+#include "monster.h"
 
-int calculateindex(int x , int y)
+
+
+char Mtype(int a, int b , int c ,int d)
 {
-  return (80*x)+y; 
+  long int bin , hex= 0 , i =1 , temp;
+  bin = (rand()+1)%a + ((rand()+1)%b*10)+ ((rand()+1)%c*100)+ ((rand()+1)%d*1000);
+  while(bin != 0)
+    {
+      temp = bin%10;
+      hex += temp*i;
+      i = i*2;
+      bin = bin/10;
+    }
+
+    
+  return hex;
+    
+    
+}
+
+void GMonster( room *rooms ,  Monster *Monsters , int size ,  point base[21][80] , int mc)
+{
+  int MonsterCount = 0;
+
+  while(MonsterCount < mc)
+    {
+      int random = (rand()%size);
+      if(!IfPC(rooms+random, base))
+	{
+	  (Monsters+MonsterCount)->x = ((rooms+random)->x)+(rand()%(rooms+random)->rl);
+	  (Monsters+MonsterCount)->y = ((rooms+random)->y)+(rand()%(rooms+random)->rw);
+	  (Monsters+MonsterCount)->type = Mtype(2,2,2,2);
+	  (Monsters+MonsterCount)->speed = 0;
+	  (Monsters+MonsterCount)->s = (rand()%16)+5;
+	  (Monsters+MonsterCount)->Dead = false;
+	  MonsterCount++;
+	}
+    }
+  
+
 }
 
 
+bool IfPC( room *r ,  point base[21][80])
+{
+  int i,j;
+
+  for(i = (r->x) ; i < ((r->x)+(r->rw)) ; i ++)
+    {
+      for(j = (r->y) ; j < ((r->y)+(r->rl)); j ++)
+	{
+	  if(base[i][j].value == '@')
+	    {
+	      return true;
+	    }
+	}
+    }
+  
+  return false;
+}
+
+
+void addPlayer( Player *p  , int px , int py)
+{
+  
+  p->x = px;
+  p->y = py;
+  p->type = '@';
+  p->s = 10;
+  p->speed = 0;
+  p->Dead = false;
+}

@@ -12,40 +12,45 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <ncurses.h>
+#include <typeinfo>
+
 
 #include "map.h"
 #include "RLfile.h"
 #include "pQueue.h"
+#include "monster.h"
+#include "path.h"
+
 
 using namespace std;
 
 
 
 
-bool Move( Monster *M , int mc ,  Monster *Ori ,  point base[21][80], int px , int py, bool check);
-bool MoveSix( Monster *M, int px , int py ,  point base[21][80] , int mc , bool check ,  Monster *Ori);
-bool Moverand( Monster *M , point base[21][80] , int mc , bool check , int px ,int py , Monster *Ori);
-
+bool Move( Charactor *M , int mc ,  Monster *Ori ,  point base[21][80], int px , int py, bool check);
+bool MoveSix( Charactor *M, int px , int py ,  point base[21][80] , int mc , bool check ,  Monster *Ori);
+bool Moverand( Charactor *M , point base[21][80] , int mc , bool check , int px ,int py , Monster *Ori);
+bool IfSee(int x, int y , int px , int py , point base[21][80]);
 
 void FakeValue(int px, int py , point base[21][80])
 {
   int i,j;
-  for(i = px-3 ; i < px+4 ; i++)
+  for(i = px-2 ; i < px+3 ; i++)
     {
-      for(j = py -3; j < py+4 ; j++)
+      for(j = py -2; j < py+3 ; j++)
 	{
-	  base[i][j].fake = base[i][j].value;
+	      base[i][j].fake = base[i][j].value;
 	}
     }
-
+  
 }
 
 bool IsAround(int x, int y, int px , int py)
 {
-  if(x>px +4 || x < px -4)
+  if(x>px +3 || x < px -3)
     return false;
   
-  if(y>py+4 ||  y < py-4)
+  if(y>py+3 ||  y < py-3)
     return false;
 
 
@@ -54,235 +59,50 @@ bool IsAround(int x, int y, int px , int py)
 }
 
 
-void Minsert(Node** head , int index , Monster *Monsters)
+void Minsert(MonNode** head , Charactor *M)
 {
-  Node* temp = (*head);
+  MonNode* temp = (*head);
 
-  Node* New = newNode(index);
+  MonNode* New = NewMNode(M);
 
-  if(((Monsters+((*head)->index))->speed) > (Monsters+index)->speed)
+  if(*head == NULL)
     {
       New->next = *head;
-      (*head) = New;	
+      (*head) = New;
     }
   else
     {
-      while(temp->next !=NULL && (Monsters+(temp->next->index))->speed <
-	    (Monsters+New->index)->speed)
+      if((((*head)->M)->speed) > M->speed)
 	{
-	  temp = temp->next;
+	  New->next = *head;
+	  (*head) = New;	
 	}
-
-      New->next = temp->next;
-      temp->next = New;
-    }
-}
-
-
-int calculateindex(int x , int y)
-{
-  return (80*x)+y; 
-}
-
-void printPath(int dis[1680] ,Node **head ,  point *source)
-{
-  int i,j;
-
-  for(i = 0 ; i < 21 ;i++)
-    {
-      for(j = 0 ; j < 80 ; j++)
+      else
 	{
-	  if(source->x ==i && source->y==j)
+	  while(temp->next !=NULL && (temp->next->M)->speed <
+		(New->M)->speed)
 	    {
-	      printf("%c" , '@');
-	    }
-	  else if(dis[calculateindex(i,j)] !=-1)
-	    {
-	      int n= dis[calculateindex(i,j)]%10;
-	      printf("%d", n);
-	    }
-	  else
-	    {
-	      printf("%c" , ' ');
-	    }
-	}
-
-      printf("\n");
-    }
-}
-
-
-int getLength(int  p)
-{
-  if(p == 255)
-    {
-      return 3;
-    }
-  else if(p == 0)
-    {
-      return 1;
-    }
-  else
-    {
-      return 1 + (p/85);
-    }
-
-
-}
-
-void FindShortestPath( point base[21][80],  point *source, int dis[1680])
-{
-  int i,j;
-  int movex[8] = {-80,-80,-80,0,0,80,80,80};
-  int movey[8] = {-1,0,1,-1,1,-1,0,1};
-  int alt;
-  Node* pq = newNode(calculateindex(source->x,source->y));
-  dis[calculateindex(source->x, source->y)] = 0;
-
-  for(i = 0 ; i < 21 ; i++)
-    {
-      for(j = 0 ; j < 80 ; j ++)
-	{
-	  if(base[i][j].value =='.' || base[i][j].value == '#' )
-	    {
-	      dis[calculateindex(i,j)] = INT_MAX;
-	      insert(&pq,calculateindex(i,j),dis);
-	    }
-	  else if(base[i][j].value =='@')
-	    {
-	      dis[calculateindex(i,j)] = 0;
-	    }
-	  else
-	    {
-	      dis[calculateindex(i,j)] = -1;
-	    }
-	}
-    }
-  //	printPath(dis , &pq);
-
-  while(!isEmpty(&pq))
-    {
-
-      int u = pop(&pq);
-
-      for(i = 0 ; i < 8 ; i ++)
-	{
-	  alt =0;
-	  int v =u+movex[i]+movey[i];
-	  if(v<0 || v>1680)
-	    {
-	      continue;
+	      temp = temp->next;
 	    }
 
-	  if(dis[v]>=0)
-	    {
-	      alt = dis[u]+ 1;
-
-	      if(alt < dis[v])
-		{
-		  dis[v] = alt;
-		  insert(&pq , v,dis);
-		}
-
-	    }	
-	}	
-    }
-
-  //	printPath(dis , &pq ,source);
-  free(pq);
-}
-
-void printWallPath(int dis[1680] , point *source)
-{
-  int i,j;
-
-  for(i = 0 ; i < 21 ;i++)
-    {
-      for(j = 0 ; j < 80 ; j++)
-	{
-	  if(source->x == i && source->y== j)
-	    {
-	      printf("%c" , '@');
-	    }
-	  else if(dis[calculateindex(i,j)] != -1)
-	    {
-	      int n= dis[calculateindex(i,j)]%10;
-	      printf("%d" , n );
-	    }
-	  else{
-	    printf(" ");
-	  }
-	}
-
-      printf("\n");
-    }
-}
-
-
-
-void FindShortestPathWithWall( point base[21][80],  point *source , int dis[1680])
-{
-  int i,j;
-  int movex[8] = {-80,-80,-80,0,0,80,80,80};
-  int movey[8] = {-1,0,1,-1,1,-1,0,1};
-  int alt;
-  Node* pq = newNode(calculateindex(source->x,source->y));
-  dis[calculateindex(source->x, source->y)] = 0;
-
-  for(i = 0 ; i < 21 ; i++)
-    {
-      for(j = 0 ; j < 80 ; j ++)
-	{
-
-
-	  if(base[i][j].value != '@' && base[i][j].value != '|' && base[i][j].value != '-')
-	    {
-	      dis[calculateindex(i,j)] = 99999;
-	      insert(&pq,calculateindex(i,j),dis);
-	    }
-	  else if(base[i][j].value != '@')
-	    {
-	      dis[calculateindex(i,j)] = -1;
-	    }
-
+	  New->next = temp->next;
+	  temp->next = New;
 	}
     }
 
-  while(!isEmpty(&pq))
-    {
-      int u = pop(&pq);
-
-      for (i = 0 ; i < 8 ; i ++)
-	{
-	  alt =0;
-
-	  int v = u+movex[i]+movey[i];
-
-	  if(v<0 || v>1680)
-	    {
-	      continue;
-	    }
-
-	  if(dis[v]>=0 )
-	    {
-	      alt = dis[u]+getLength(base[u/80][u%80].hardness);
-
-	      if(alt < dis[v])
-		{			 
-		  dis[v] = alt;
-		  insert(&pq , v , dis);
-		}
-
-	    }
-
-	}
-
-    }
-
-
-  //	printWallPath(dis ,source);
-  free(pq);
 }
+
+Charactor* Mpop(MonNode **head )
+{
+  Charactor *M = (*head)->M;
+  MonNode* temp = (*head);
+  (*head) = (*head)->next;
+  free(temp);
+
+  return M;
+}
+
+
 
 
 int GeneStair( point base[21][80])
@@ -325,32 +145,13 @@ int GeneDStair( point base[21][80])
 }
 
 
-char Mtype(int a, int b , int c ,int d)
-{
-  long int bin , hex= 0 , i =1 , temp;
-  bin = (rand()+1)%a + ((rand()+1)%b*10)+ ((rand()+1)%c*100)+ ((rand()+1)%d*1000);
-  while(bin != 0)
-    {
-      temp = bin%10;
-      hex += temp*i;
-      i = i*2;
-      bin = bin/10;
-    }
-
-    
-  return hex;
-    
-    
-}
-
-
 int isSamePlace( Monster *Monsters , int mc , int x , int y)
 {
 
   int i;
   for(i = 0 ; i < mc ; i ++ )
     {
-      if((Monsters+i)->x == x && (Monsters+i)->y == y)
+      if((Monsters+i)->x == x && (Monsters+i)->y == y && (Monsters+i)->Dead == false)
 	{
 	  return i;
 	}
@@ -420,49 +221,7 @@ void PrintMonster(WINDOW **game , Monster *ms , int mc ,  point base[21][80] , i
 
 }
 
-
-
-bool IfPC( room *r ,  point base[21][80])
-{
-  int i,j;
-
-  for(i = (r->x) ; i < ((r->x)+(r->rw)) ; i ++)
-    {
-      for(j = (r->y) ; j < ((r->y)+(r->rl)); j ++)
-	{
-	  if(base[i][j].value == '@')
-	    {
-	      return true;
-	    }
-	}
-    }
-  
-  return false;
-}
-
-
-void GMonster( room *rooms ,  Monster *Monsters , int size ,  point base[21][80] , int mc)
-{
-  int MonsterCount = 0;
-
-  while(MonsterCount < mc)
-    {
-      int random = (rand()%size);
-      if(!IfPC(rooms+random, base))
-	{
-	  (Monsters+MonsterCount)->x = ((rooms+random)->x)+(rand()%(rooms+random)->rl);
-	  (Monsters+MonsterCount)->y = ((rooms+random)->y)+(rand()%(rooms+random)->rw);
-	  (Monsters+MonsterCount)->type = Mtype(2,2,2,2);
-	  (Monsters+MonsterCount)->speed = 0;
-	  (Monsters+MonsterCount)->s = (rand()%16)+5;
-	  MonsterCount++;
-	}
-    }
-  
-
-}
-
-bool EMove( Monster *Monsters, Monster *Ori , int mc , int px , int py , point base[21][80] , char temp)
+bool EMove( Charactor *Monsters, Monster *Ori , int mc , int px , int py , point base[21][80] , char temp)
 {
   bool dead = false;
   
@@ -504,7 +263,7 @@ bool EMove( Monster *Monsters, Monster *Ori , int mc , int px , int py , point b
 
 }
 
-void PrintLose( Monster *Monsters)
+void PrintLose(Charactor *Monsters)
 {
   int i, j;
   for(i = 0 ; i < 21 ; i ++)
@@ -525,15 +284,6 @@ void PrintLose( Monster *Monsters)
     }
 
 
-}
-
-void addPlayer( Monster *M , int mc , int px , int py)
-{
-  (M+mc)->x = px;
-  (M+mc)->y = py;
-  (M+mc)->type = '@';
-  (M+mc)->s = 10;
-  (M+mc)->speed = 0;
 }
 
 void PrintList(WINDOW **list,int mc, int px ,int py, Monster *M,int n)
@@ -633,7 +383,17 @@ void MonsterList( Monster *M, int mc , int px , int py)
   
 }
 
-void PCteleport( WINDOW **game, point base[21][80] , Monster* M)
+void killed(Monster*Ori , Player p , int mc)
+{
+  for(int i = 0 ; i < mc ; i++)
+    {
+      if((Ori+i)->x == p.x && (Ori+i)->y == p.y && (Ori+i)->Dead != true)
+	(Ori+i)->Dead = true;
+    }
+}
+
+
+void PCteleport( WINDOW **game, point base[21][80] , Player* M , bool fog)
 {
 
   int ch;
@@ -641,40 +401,71 @@ void PCteleport( WINDOW **game, point base[21][80] , Monster* M)
   int y = 40;
   char temp = base[x][y].fake;
   bool check = false;
+    
   
   mvwprintw(*game, x , y ,"%c" , '*' );
 
   while(!check)
     {
       ch = wgetch(*game);
-
+      
       switch(ch)
 	{
 	case KEY_UP:
-	  mvwprintw(*game, x , y , "%c" , temp);
-	  x--;
-	  temp = base[x][y].fake;
-	  mvwprintw(*game, x , y, "%c" , '*');
+	  if(x-1 > 0)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      x--;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		temp = base[x][y].value;
+	      mvwprintw(*game, x , y, "%c" , '*');
+	    }
 	  break;
 	case KEY_DOWN:
-	  mvwprintw(*game, x , y , "%c" , temp);
-	  x++;
-	  temp = base[x][y].fake;
-	  mvwprintw(*game, x , y, "%c" , '*');
+	  if(x+1 <=19)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      x++;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		temp = base[x][y].value;
+		  mvwprintw(*game, x , y, "%c" , '*');
+	    }
 	  break;
 	case KEY_LEFT:
-	  mvwprintw(*game, x , y , "%c" , temp);
-	  y--;
-	  temp = base[x][y].fake;
-	  mvwprintw(*game, x , y, "%c" , '*');
+	  if(y-1 >0)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      y--;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		temp = base[x][y].value;
+		  mvwprintw(*game, x , y, "%c" , '*');
+	    }
 	  break;
 	case KEY_RIGHT:
-	  mvwprintw(*game, x , y , "%c" , temp);
-	  y++;
-	  temp = base[x][y].fake;
-	  mvwprintw(*game, x , y, "%c" , '*');
+	  if(y+1 <=78)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      y++;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		temp = base[x][y].value;
+	      mvwprintw(*game, x , y, "%c" , '*');
+	    }
 	  break;
 	case 'g':
+	  check = true;
+	  break;
+	case 'r':
+	  mvwprintw(*game, x , y , "%c" , temp);
+	  x = (rand()%19)+1;
+	  y = (rand()%78)+1;
 	  check = true;
 	  break;
 	}
@@ -684,11 +475,10 @@ void PCteleport( WINDOW **game, point base[21][80] , Monster* M)
   M->x = x;
   M->y = y;
 
-  
 }
 
 
-char PCMove( Monster *M ,  point base[21][80], WINDOW **game , char store,  Monster *Ori,int mc,int stair, int Dstair)
+char PCMove( Charactor *M ,  point base[21][80], WINDOW **game , char store,  Monster *Ori,int mc,int stair, int Dstair)
 {
 
   base[M->x][M->y].value = store;
@@ -792,7 +582,7 @@ char PCMove( Monster *M ,  point base[21][80], WINDOW **game , char store,  Mons
 	  PrintMonster(game,Ori,mc,base,M->x,M->y,stair,Dstair,visite);
 	  break;
 	case 'g':
-	  PCteleport(game,base,M);
+	  PCteleport(game,base,(Player*)M, !visite);
 	  store = base[M->x][M->y].value;
 	  base[M->x][M->y].value = '@';
 	  check = false;
@@ -827,10 +617,11 @@ char PCMove( Monster *M ,  point base[21][80], WINDOW **game , char store,  Mons
 
 bool MonsterMove( Monster *Monsters , int mc,  point base[21][80] , int px , int py)
 {
-  addPlayer(Monsters , mc , px ,py);
+  Player *player = (Player*)malloc(sizeof(Player));
+  addPlayer(player , px ,py);
   int i;
   bool dead = false;
-  Node* mq = newNode(mc);
+  MonNode* mq = NewMNode(player);
   bool change = false;
   bool seeP = false;
   char store = '.';
@@ -840,11 +631,9 @@ bool MonsterMove( Monster *Monsters , int mc,  point base[21][80] , int px , int
   
   for(i = 0 ; i < mc ; i++)
     {
-      Minsert(&mq , i , Monsters);
+      Minsert(&mq , Monsters+i);
     }
-
- 
-   
+  
   initscr();
   noecho();
   cbreak();
@@ -857,105 +646,109 @@ bool MonsterMove( Monster *Monsters , int mc,  point base[21][80] , int px , int
      
   while(!dead)
     {
-      int  n = pop(&mq);
+      Charactor*  M = Mpop(&mq);
 
-      switch((Monsters+n)->type)
+	  if(M->Dead == true)
+	    {
+	      continue;
+	    }
+      
+      switch(M->type)
 	{
 	case 0:
-	  dead = Moverand((Monsters+n),base, mc, false , px , py , Monsters);
+	  dead = Moverand(M,base, mc, false , px , py , Monsters);
 	  break;
 	case 1:
-	  if((Monsters+n)->x == px || (Monsters+n)->y == py)
-	    dead = Move((Monsters+n),mc,Monsters,base,px,py,false);
+	  if((M)->x == px || (M)->y == py)
+	    dead = Move(M,mc,Monsters,base,px,py,false);
 	  else
-	    dead = Moverand((Monsters+n),base, mc, false , px , py , Monsters);
+	    dead = Moverand(M,base, mc, false , px , py , Monsters);
 	  break;
 	case 2:
-	  dead = MoveSix((Monsters+n),px ,py ,base , mc , false,Monsters);
+	  dead = MoveSix(M,px ,py ,base , mc , false,Monsters);
 	  break;
 	case 3:
-	  dead = Move((Monsters+n),mc,Monsters,base,px,py,false);
+	  dead = Move(M,mc,Monsters,base,px,py,false);
 	  break;
 	case 4:
-	  dead = Moverand((Monsters+n),base,mc,true,px,py,Monsters);
+	  dead = Moverand(M,base,mc,true,px,py,Monsters);
 	  break;
 	case 5:
-	  if((Monsters+n)->x == px || (Monsters+n)->y == py || change ==true)
+	  if(M->x == px || M->y == py || change ==true)
 	    {
-	      dead = Move((Monsters+n),mc,Monsters,base,px,py,true);
+	      dead = Move(M,mc,Monsters,base,px,py,true);
 	      change = true;
 	    }
 	  else
 	    {
-	      dead = Moverand((Monsters+n),base, mc, true , px , py , Monsters);
+	      dead = Moverand(M,base, mc, true , px , py , Monsters);
 	    }
 	  break;
 	case 6:
-	  dead = MoveSix((Monsters+n) , px , py , base ,mc ,true,Monsters);
+	  dead = MoveSix(M , px , py , base ,mc ,true,Monsters);
 	  break;
 	case 7:
-	  dead = Move((Monsters+n),mc,Monsters,base,px,py,true);
+	  dead = Move(M,mc,Monsters,base,px,py,true);
 	  break;
 	case 8:
-	  dead = Moverand((Monsters+n),base, mc, false , px , py , Monsters);
+	  dead = Moverand(M,base, mc, false , px , py , Monsters);
 	  break;
 	case 9:
 	  if(rand()%2 == 0)
 	    {
-	      if((Monsters+n)->x == px || (Monsters+n)->y == py || seeP ==true)
+	      if(M->x == px || M->y == py || seeP ==true)
 		{
-		  dead = Move((Monsters+n),mc,Monsters,base,px,py,false);
+		  dead = Move(M,mc,Monsters,base,px,py,false);
 		  seeP = true;
 		}
 	      else
 		{
-		  dead = Moverand((Monsters+n),base, mc, false , px , py , Monsters);
+		  dead = Moverand(M,base, mc, false , px , py , Monsters);
 		}
 	    }
 	  else
 	    {
-	      dead = Moverand((Monsters+n),base, mc, false , px , py , Monsters);
+	      dead = Moverand(M,base, mc, false , px , py , Monsters);
 	    }
 	  break;
 	case 10:
 	  if(rand()%2 ==0)
 	    {
-	      dead = MoveSix((Monsters+n),px ,py ,base , mc , false , Monsters);
+	      dead = MoveSix(M,px ,py ,base , mc , false , Monsters);
 	    }
 	  else
 	    {
-	      dead = Moverand((Monsters+n),base, mc, false , px , py , Monsters);
+	      dead = Moverand(M,base, mc, false , px , py , Monsters);
 	    }
 	  break;
 	case 11:
-	  dead = EMove((Monsters+n),Monsters, mc , px , py,base, Mtype(1,1,2,2));
+	  dead = EMove(M,Monsters, mc , px , py,base, Mtype(1,1,2,2));
 	  break;
 	case 12:
 	  if(rand()%2 ==0)
 	    {
-	      dead = Moverand((Monsters+n),base,mc,true,px,py,Monsters);
+	      dead = Moverand(M,base,mc,true,px,py,Monsters);
 	    }
 	  else
 	    {
-	      dead = Moverand((Monsters+n),base, mc, false , px , py , Monsters);
+	      dead = Moverand(M,base, mc, false , px , py , Monsters);
 	    }
 	  break;
 	case 13:
-	  dead =  EMove((Monsters+n),Monsters, mc , px , py,base, Mtype(1,2,1,2));
+	  dead =  EMove(M,Monsters, mc , px , py,base, Mtype(1,2,1,2));
 	  break;
 	case 14:
-	  dead =  EMove((Monsters+n),Monsters, mc , px , py,base , Mtype(1,2,2,1));
+	  dead =  EMove(M,Monsters, mc , px , py,base , Mtype(1,2,2,1));
 	  break;
 	case 15:
-	  dead =  EMove((Monsters+n),Monsters, mc , px , py,base, Mtype(1,2,2,2));
+	  dead =  EMove(M,Monsters, mc , px , py,base, Mtype(1,2,2,2));
 	  break;
 	case '@':
-	  usleep(250000);
 	  PrintMonster(&game,Monsters, mc , base,px,py , stair , Dstair,false);
-	  //tempprint(&game);
-	  store = PCMove((Monsters+n),base,&game,store,Monsters,mc,stair,Dstair);
-	  px = (Monsters+n)->x;
-	  py = (Monsters+n)->y;
+	  store = PCMove(M,base,&game,store,Monsters,mc,stair,Dstair);
+	  killed(Monsters,*player,mc);
+	  px = M->x;
+	  py = M->y;
 	  break;
 	}
 
@@ -981,15 +774,14 @@ bool MonsterMove( Monster *Monsters , int mc,  point base[21][80] , int px , int
 	  clrtoeol();
 	  refresh();
 	  endwin();
-	  PrintLose(Monsters+n);
+	  PrintLose(M);
 	  break;  
 	}
 
 	  
-      (Monsters+n)->speed += (Monsters+n)->s;
-      Minsert(&mq , n , Monsters);
-
-
+      (M)->speed += (M)->s;
+      Minsert(&mq , M);
+      //mq = NewMNode(player);
     }
 
   return false;
@@ -997,7 +789,7 @@ bool MonsterMove( Monster *Monsters , int mc,  point base[21][80] , int px , int
 }
 
 
-bool Move( Monster *M, int mc ,  Monster *Ori ,  point base[21][80],int px, int py, bool check)
+bool Move( Charactor *M, int mc ,  Monster *Ori ,  point base[21][80],int px, int py, bool check)
 {
   int movex[8] = {-80,-80,-80,0,0,80,80,80};
   int movey[8] = {-1,0,1,-1,1,-1,0,1};
@@ -1071,7 +863,7 @@ bool Move( Monster *M, int mc ,  Monster *Ori ,  point base[21][80],int px, int 
      
 }
 
-bool MoveSix( Monster *M, int px , int py ,  point base[21][80], int mc , bool check,  Monster *Ori)
+bool MoveSix( Charactor *M, int px , int py ,  point base[21][80], int mc , bool check,  Monster *Ori)
 {
   int referx = px - M->x;
   int refery = py - M->y;
@@ -1181,7 +973,7 @@ bool MoveSix( Monster *M, int px , int py ,  point base[21][80], int mc , bool c
 
 }
 
-bool Moverand( Monster *M , point base[21][80] , int mc , bool check , int px ,int py, Monster *Ori)
+bool Moverand( Charactor *M , point base[21][80] , int mc , bool check , int px ,int py, Monster *Ori)
 {
   int movex[8] = {-1,-1,-1,0,0,1,1,1};
   int movey[8] = {-1,0,1,-1,1,-1,0,1};
@@ -1205,7 +997,7 @@ bool Moverand( Monster *M , point base[21][80] , int mc , bool check , int px ,i
     }
   else
     {
-      if( isSamePlace(M , mc , x, y) == -1)
+      if( isSamePlace(Ori , mc , x, y) == -1)
 	{
 	  if(base[x][y].hardness/85 > 0)
 	    {
@@ -1229,32 +1021,18 @@ bool Moverand( Monster *M , point base[21][80] , int mc , bool check , int px ,i
 }
 
 
-void tempprint(WINDOW** temp)
-{
-  int i , j ;
-  for(i = 0 ; i < 21 ; i++)
-    {
-      for(j = 0 ; j <80;j++)
-	{
-	  mvwprintw(*temp,i,j,"%c" , '*');
-	}
-    }
-}
-
-
-
 int main (int argc , char *argv[])
 {
   int i,n;
-   point Base[21][80];
+  point Base[21][80];
   srand (time(NULL));
   int size = 0;
   int MonsterCount = 10;
-   room *rooms;
+  room *rooms;
   int playlocation[2];
   bool issave = false;
   bool isload = false;
-   Monster *Monsters;
+  Monster *Monsters;
 	
 
   rooms = ( room*)malloc(10*sizeof( room));
@@ -1284,7 +1062,7 @@ int main (int argc , char *argv[])
 	}
     }
 
-  Monsters = ( Monster*)malloc((MonsterCount+1)*sizeof( Monster));
+  Monsters = ( Monster*)malloc((MonsterCount)*sizeof( Monster));
 	
   if(isload)
     {

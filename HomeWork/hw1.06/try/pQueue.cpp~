@@ -12,7 +12,17 @@ Node* newNode(int index)
 
 }
 
-void insert(Node** head , int index , int dis[1680] )
+MonNode* NewMNode(Monster *M)
+{
+  MonNode *temp = (MonNode*)malloc(sizeof(MonNode));
+
+  temp->M = M;
+  temp->next = NULL;
+
+    return temp;
+}
+
+void insert(Node** head , int index, int dis[1680] )
 {
   Node* temp = (*head);
 
@@ -33,30 +43,6 @@ void insert(Node** head , int index , int dis[1680] )
       New->next = temp->next;
       temp->next = New;
 
-    }
-}
-
-void Minsert(Node** head , int index , Monster *Monsters)
-{
-  Node* temp = (*head);
-
-  Node* New = newNode(index);
-
-  if(((Monsters+((*head)->index))->speed) > (Monsters+index)->speed)
-    {
-      New->next = *head;
-      (*head) = New;	
-    }
-  else
-    {
-      while(temp->next !=NULL && (Monsters+(temp->next->index))->speed <
-	    (Monsters+New->index)->speed)
-	{
-	  temp = temp->next;
-	}
-
-      New->next = temp->next;
-      temp->next = New;
     }
 }
 

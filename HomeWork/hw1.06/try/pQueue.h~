@@ -5,30 +5,27 @@
 #include<stdbool.h>
 #include<stdint.h>
 #include<stdio.h>
-
-class Monster
-{
-public:
-  int x;
-  int y;
-  int speed;
-  int s;
-  char type;
-};
+#include"monster.h"
 
 class Node
 {
 public:
   int index;
-
    Node* next;
 };
 
+class MonNode : public Node
+{
+public:
+  Charactor *M;
+  MonNode* next;
+};
+
+MonNode* NewMNode(Charactor *M);
+  
 Node* newNode(int index);
 
 void insert(Node **head, int index, int dis[1680]);
-
-void Minsert(Node **head, int index , Monster *Monsters);
 
 int pop(Node **head);
 

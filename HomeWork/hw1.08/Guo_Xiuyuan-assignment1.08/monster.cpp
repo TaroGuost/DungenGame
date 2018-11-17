@@ -10,7 +10,7 @@ void objects :: setSybol()
     Sybol = '}';
   else if(type.compare("ARMOR") == 0)
     Sybol = '[';
-  else if(type.compare("HELMENT") == 0)
+  else if(type.compare("HELMET") == 0)
     Sybol = ']';
   else if(type.compare("CLOAK") == 0)
     Sybol = '(';
@@ -99,6 +99,20 @@ string dices :: toString()
   temp = to_string(base) + "+" + to_string(Amount) + "d" + to_string(side);
 
   return temp;
+}
+
+void dice :: adddice(dices temp)
+{
+  side += temp.side;
+  Amount += temp.Amount;
+  base += temp.base;
+}
+
+void dice :: takeoff(dice temp)
+{
+  side -= temp.side;
+  Amount += temp.Amount;
+  base += temp.base;
 }
 
 char Mtype(int a, int b , int c ,int d)
@@ -286,6 +300,8 @@ void setCount(string s , int *count)
   else if(s.compare("DEF")==0)
     *count = 15;
   else if(s.compare("ART")==0)
+    *count = 17;
+  else if(s.compare("HIT") ==0)
     *count = 16;
 }
 
@@ -468,6 +484,9 @@ void ImportObject(vector<objects> *O , string name)
   
   while(getline(F,x))
     {
+
+      if(x == "")
+	continue;
       
       if(count != 4 && x != "")
 	{
@@ -478,7 +497,7 @@ void ImportObject(vector<objects> *O , string name)
 	{
 	  if(x.compare(".")== 0)
 	    {
-	      count = -1;
+	      count = -2;
 	      continue;
 	    }
 	
@@ -496,6 +515,10 @@ void ImportObject(vector<objects> *O , string name)
 	{
 	case -1:
 	  (*O).push_back(*temp);
+	  //delete temp;
+	  //temp = new objects;
+	  break;
+	case 0:
 	  temp = new objects;
 	  break;
 	case 1:
@@ -549,6 +572,7 @@ void ImportObject(vector<objects> *O , string name)
 	case 10: 
 	  (temp)->type = content.at(1);
 	  (temp)->setSybol();
+	  cout << "TYPE: " << content.at(1) <<endl;
 	  break;
 	case 11: 
 	  (temp)->weight = di.Roll();
@@ -565,6 +589,9 @@ void ImportObject(vector<objects> *O , string name)
 	case 15: 
 	  (temp)->def = di.Roll();
 	  break;
+	case 17:
+	  (temp)->hit = di.Roll();
+	  break;
 	case 16: 
 	  if(content.at(1).compare("TRUE") ==0)
 	    (temp)->art = true;
@@ -579,14 +606,16 @@ void ImportObject(vector<objects> *O , string name)
  
 }
 
-void printobject(vector<objects> O)
+void printobject(vector<objects> *O)
 {
   
-  for(int i = 0 ; i < O.size() ; i++)
+  for(int i = 0 ; i < (*O).size() ; i++)
     {
-      cout<< "Object name: "<<O.at(i).name << endl;
-      cout << "Object Desc: "<< O.at(i).Desc <<endl <<endl;
-      cout << "Object sybol: "<< O.at(i).Sybol << endl<<endl;
+      cout<< "Object name: "<<(*O).at(i).name << endl;
+      cout << "Object Desc: "<< (*O).at(i).Desc <<endl <<endl;
+      cout << "Object sybol: "<< (*O).at(i).Sybol << endl;
+      cout << "isArt: " << (*O).at(i).art << endl;
+      cout << "Type:" << (*O).at(i).type << endl <<endl;
     }
 }
 
@@ -594,6 +623,7 @@ void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80] ,
 {
   int n =0;
   int count = 10 + rand()%5;
+  bool check = false;
   while(n < 11)
     {
       int random = (rand()%size);
@@ -602,6 +632,15 @@ void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80] ,
       int y = ((rooms+random)->y)+(rand()%(rooms+random)->rw);
       if(base[x][y].ob == '.' && (rand()%100 <= O.at(po).RRTY) && base[x][y].position ==-1)
 	{
+	  if(O.at(po).art && check || (O.at(po).Sybol == '*'))
+	     {
+	       continue;
+	     }
+	   else if(O.at(po).art)
+	     {
+	       check = true;
+	     }
+	   
 	  (*ob).push_back(O.at(po));
 	  ((*ob).at(n)).x = x;
 	  ((*ob).at(n)).y = y;

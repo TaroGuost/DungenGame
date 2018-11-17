@@ -1085,17 +1085,17 @@ int main (int argc , char *argv[])
 
   Msize = ImportMonster(&Cala,filename);
   tempc(Cala , Msize);
-  // GMonster(rooms , Monsters , size ,Base , MonsterCount);
+  GMonster(rooms , Monsters , size ,Base , MonsterCount);
 	       
-  // //PrintMonster(Monsters , MonsterCount, Base,playlocation[0],playlocation[1]);	   
-  // bool check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1]);
+  //PrintMonster(Monsters , MonsterCount, Base,playlocation[0],playlocation[1]);	   
+  bool check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1]);
 
-  // while(check)
-  //   {
-  //     generatemap(Base , &size , rooms , playlocation);
-  //     GMonster(rooms , Monsters , size ,Base , MonsterCount);	   
-  //     check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1]);
-  //   }
+  while(check)
+    {
+      generatemap(Base , &size , rooms , playlocation);
+      GMonster(rooms , Monsters , size ,Base , MonsterCount);	   
+      check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1]);
+    }
 
   free(Cala);
   return 0;

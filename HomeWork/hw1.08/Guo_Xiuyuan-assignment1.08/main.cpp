@@ -1099,6 +1099,7 @@ int main (int argc , char *argv[])
 
   string s = dir;
   string filename = s + "/monster_desc.txt";
+  string fname = s + "/object_desc.txt";
   
   n = argc;
 
@@ -1138,11 +1139,11 @@ int main (int argc , char *argv[])
     }
 
   Msize = ImportMonster(&Cala,filename);
-  //tempc(Cala , Msize);
+  tempc(Cala , Msize);
   GMonster(rooms , Monsters , size ,Base , MonsterCount , Cala , Msize);
-  ImportObject(&ob,"object.txt");
+  ImportObject(&ob,fname);
   Gobject(&obj,rooms,size,Base , ob);
-  //printobject(ob);
+  printobject(&ob);
   
   //PrintMonster(Monsters , MonsterCount, Base,playlocation[0],playlocation[1]);	   
   bool check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1], &obj);
@@ -1151,8 +1152,8 @@ int main (int argc , char *argv[])
     {
       cleanObject(Base , &obj);
       generatemap(Base , &size , rooms , playlocation);
+      GMonster(rooms , Monsters , size ,Base , MonsterCount , Cala , Msize);
       Gobject(&obj,rooms,size,Base , ob);
-      GMonster(rooms , Monsters , size ,Base , MonsterCount , Cala , Msize);	   
       check = MonsterMove(Monsters , MonsterCount, Base , playlocation[0] , playlocation[1],&obj);
     }
 

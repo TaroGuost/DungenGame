@@ -3,4 +3,4 @@ hw3: main.cpp
 
 
 clean:
-	rm -f test
+	rm -f x *~

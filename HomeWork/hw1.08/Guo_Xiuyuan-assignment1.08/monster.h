@@ -12,7 +12,9 @@
 #include<iomanip>
 #include<vector>
 #include<iterator>
+#include<sstream>
 #include"map.h"
+
 
 using namespace std;
 
@@ -29,6 +31,7 @@ public:
   void setup(vector<string> s);
   int Roll();
   string toString();
+  void adddice();
 };
 
 class objects
@@ -58,7 +61,7 @@ public:
   int x;
   int y;
   string Desc;
-  string type;
+  string type = "hh";
   string name;
   Color c[8] = {BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK,BLACK};
   int val;
@@ -123,7 +126,7 @@ void tempc(Monster *M , int size);
 vector<string> Split(string s , char c);
 bool checkCala(Monster *M);
 void ImportObject(vector<objects> *O , string name);
-void printobject(vector<objects> O);
+void printobject(vector<objects> *O);
 void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80] , vector<objects> O);
 
 #endif

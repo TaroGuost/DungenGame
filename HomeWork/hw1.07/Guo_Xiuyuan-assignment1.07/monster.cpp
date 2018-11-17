@@ -115,14 +115,14 @@ void tempc(Monster *M , int size)
   for(int i = 0 ; i < size ; i ++)
     {
       cout << "Name " << (M+i)->name << endl;
-      cout << "SYMB " << (M+i)->Sybol << endl;
-      cout << "COLOR " << (M+i)->Color <<endl;
       cout << "DESC :" << (M+i)->Desc;
+      cout << "COLOR " << (M+i)->Color <<endl;
       cout << "Speed " << (M+i)->speed.toString() << endl;
-      cout << "Damage " << (M+i)->Damage.toString() << endl;
-      cout << "HP " << (M+i)->HP.toString() <<endl;
       cout << "Ability: " << (*(M+i)).displayAbil() << endl;
-      cout << "RYYP: " << (M+i)->RRTY << endl;
+      cout << "HP " << (M+i)->HP.toString() <<endl;
+      cout << "Damage " << (M+i)->Damage.toString() << endl;
+      cout << "SYMB " << (M+i)->Sybol << endl;
+      cout << "RRTY: " << (M+i)->RRTY << endl<<endl;
     }
   
 }
