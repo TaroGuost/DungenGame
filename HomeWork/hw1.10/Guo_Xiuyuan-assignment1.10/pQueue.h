@@ -1,0 +1,40 @@
+# ifndef PQUEUE_H
+# define PQUEUE_H
+
+#include<stdlib.h>
+#include<stdbool.h>
+#include<stdint.h>
+#include<stdio.h>
+#include"monster.h"
+
+class Node
+{
+public:
+  int index;
+   Node* next;
+};
+
+class MonNode : public Node
+{
+public:
+  Charactor *M;
+  MonNode* next = NULL;
+};
+
+MonNode* NewMNode(Charactor *M);
+  
+Node* newNode(int index);
+
+void insert(Node **head, int index, int dis[1680]);
+
+int pop(Node **head);
+
+bool isEmpty(Node **head);
+
+void Mfree(MonNode** head);
+
+void Minsert(MonNode **head , Charactor *M);
+
+Charactor *Mpop(MonNode **head);
+
+#endif
