@@ -1,5 +1,17 @@
-in this assignment，every command should work same as the description like: x ,i , e , I, L , w ,t,d. For quit the list of slot and equiment you should use the key 'e' instead of ESCAPE should work. And the PC will fight with Monster, The HP of the pc and the HP of the monster should how below the dungeon. When the PC killed a monster it will show that the pc have kill that monster. The game will end when BOSS dead. After wear the item the PC should update for speed , hp , and damage. By the way the key 'L' should work as same as teleport it will display the information of the monster when the star are in the position of the monster. 
+For this assignemnt i have implement the posion spell function and the ranged attacked function for my game. There would be a list of command for each of it;
 
-'I' : for this key it work when you are in the slot list press this key it will display the description of that monster and it should QUIT TO PRESS THE SAME KEY('I');
+'a' - this command is the ranged attack command that can be used if there is a ranged weapon on you, if you don;t it will say that please load the range weapon;
+	
+	'a' - after press 'a' with ranged weapon then press 'a' again to attack the monster if you attack a random cell it will promote you to attack monster;
 
-'L' : for this key it work when you are in the normal mode and t read description of that monster then it can QUIT TO PRESS THE SAME KEY('L'); 
+'i' - same use for the last assignment that you can open the bag-pack slot;
+	's' - after pick up the book '?' you can see it in your slot open the slot by using 'i' and to learn the spell jsut press 's' with highlight on the book;
+
+'s' - the spell slot that will show all the spell you have learned;
+	'u' - pick the right spell with hightlight, then you can use it just like what we did teleport;
+		's'- on the use spell mode 'u' you can press 's' to actually use the spell from that point everything will looks green so it mean this area has been poisoned.
+
+'e' - A quit command for all the slot or list or activeity;
+
+
+Also for this project, we don;t have book and ranged weapon for our object_description.txt so i have implement my Own object_description in this folder you can find it in a folder called "Description".

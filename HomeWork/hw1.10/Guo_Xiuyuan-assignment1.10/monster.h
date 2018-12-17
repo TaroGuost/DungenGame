@@ -1,6 +1,7 @@
 # ifndef MONSTER_H
 # define MONSTER_H
 
+#include<curses.h>
 #include<iostream>
 #include<string>
 #include<stdlib.h>
@@ -13,6 +14,7 @@
 #include<vector>
 #include<iterator>
 #include<sstream>
+
 #include"map.h"
 
 
@@ -163,7 +165,9 @@ public:
   void takeoff(int n);
   void removeitem(int n);
   void learnSpell(int i);
+  void RangeAttack(WINDOW **game, point base[21][80],Monster *Ori, bool fog , int mc);
 private:
+  void SelectTarget(WINDOW **game , point base[21][80] , Monster *Ori , bool fog , int mc);
   int isThere(objects ob);
   void addValue(objects temp);
   void offValue(objects temp);
@@ -184,4 +188,5 @@ void ImportObject(vector<objects> *O , string name);
 void printobject(vector<objects> *O);
 void Gobject(vector<objects> *ob, room *rooms , int size  , point base[21][80] , vector<objects> O);
 void cleanObject(point base[21][80], vector<objects> *ob);
+int isSamePlace(Monster *Monsters , int mc , int x, int y);
 #endif

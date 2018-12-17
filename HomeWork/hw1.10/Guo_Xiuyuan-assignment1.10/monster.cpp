@@ -313,6 +313,152 @@ void Player :: learnSpell(int i)
     }
 }
 
+void Player :: RangeAttack(WINDOW **game , point base[21][80] , Monster *Ori , bool fog , int mc)
+{
+  bool check = false;
+  for(int i = 0 ; i < equi.size(); i++)
+    {
+      if(equi.at(i).type.compare("RANGED") == 0)
+	{
+	  check = true;
+	  SelectTarget(game, base ,Ori ,!fog , mc);
+	  break;
+	}
+    }
+
+  if(!check)
+    {
+      mvwprintw(*game , 21 , 0 , "YOU DON'T HAVE RANGE WEAPON");
+    }
+
+  
+}
+
+void Player :: SelectTarget(WINDOW **game , point base[21][80] , Monster *Ori , bool fog , int mc)
+{
+  int ch;
+  int x =10;
+  int y = 40;
+  char temp = base[x][y].fake;
+  bool check = false;
+
+   mvwprintw(*game , 21 , 0 , "                              ");
+   mvwprintw(*game , 22 , 0 , "                              ");
+   mvwprintw(*game , 23 , 0 , "                              ");
+  
+  mvwprintw(*game, x , y ,"%c" , '*' );
+
+  while(!check)
+    {
+      ch = wgetch(*game);
+      
+      switch(ch)
+	{
+	case KEY_UP:
+	  if(x-1 > 0)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      x--;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		{
+		  int index = isSamePlace(Ori,mc,x,y);
+		  if(index != -1)
+		    temp = (Ori+index)->Sybol;
+		  else
+		    temp = base[x][y].value;
+		}
+	      mvwprintw(*game, x , y, "%c" , '*');
+	    }
+	  break;
+	case KEY_DOWN:
+	  if(x+1 <=19)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      x++;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		{
+		  int index = isSamePlace(Ori,mc,x,y);
+		  if(index != -1)
+		    temp = (Ori+index)->Sybol;
+		  else
+		    temp = base[x][y].value;
+		}
+	      mvwprintw(*game, x , y, "%c" , '*');
+	    }
+	  break;
+	case KEY_LEFT:
+	  if(y-1 >0)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      y--;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		{
+		  int index = isSamePlace(Ori,mc,x,y);
+		  if(index != -1)
+		    temp = (Ori+index)->Sybol;
+		  else
+		    temp = base[x][y].value;
+		}
+	      mvwprintw(*game, x , y, "%c" , '*');
+	    }
+	  break;
+	case KEY_RIGHT:
+	  if(y+1 <=78)
+	    {
+	      mvwprintw(*game, x , y , "%c" , temp);
+	      y++;
+	      if(fog)
+		temp = base[x][y].fake;
+	      else
+		{
+		  int index = isSamePlace(Ori,mc,x,y);
+		  if(index != -1)
+		    temp = (Ori+index)->Sybol;
+		  else
+		    temp = base[x][y].value;
+		}
+		  mvwprintw(*game, x , y, "%c" , '*');
+	    }
+	  break;
+	case 'e':
+	  check = true;
+	  werase(*game);
+	  break;
+	case 'a':
+	  int n = -1;
+	  for(int i = 0 ; i < mc ; i ++)
+	    {
+	      if((Ori+i)->x == x && (Ori+i)->y == y)
+		{
+		  n =i;
+		  break;
+		}
+	    }
+	  
+	  if(n >=0)
+	    {
+	      int dam = Damage.Roll();
+	      (Ori+n)->HP -= dam;
+	      mvwprintw(*game ,21,0, "%c got damage of %d" , (Ori+n)->Sybol , dam );
+	      check = true;
+	      //werase(*game);
+	    }
+	  else
+	    {
+	      mvwprintw(*game , 21 , 0 , "Please Select a Monster");
+	    }
+	  break;
+	}
+      
+    }
+}
+
 
 void Spell :: use(point base[21][80] , int x , int y)
 {
@@ -818,4 +964,18 @@ void cleanObject(point base[21][80] , vector<objects> *ob)
     }
 
   (*ob).clear();
+}
+
+int isSamePlace( Monster *Monsters , int mc , int x , int y)
+{
+
+  int i;
+  for(i = 0 ; i < mc ; i ++ )
+    {
+      if((Monsters+i)->x == x && (Monsters+i)->y == y && (Monsters+i)->Dead == false)
+	{
+	  return i;
+	}
+    }
+  return -1;
 }

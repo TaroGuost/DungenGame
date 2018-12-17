@@ -1,19 +1,5 @@
 #include "move.h"
 
-int isSamePlace( Monster *Monsters , int mc , int x , int y)
-{
-
-  int i;
-  for(i = 0 ; i < mc ; i ++ )
-    {
-      if((Monsters+i)->x == x && (Monsters+i)->y == y && (Monsters+i)->Dead == false)
-	{
-	  return i;
-	}
-    }
-  return -1;
-}
-
 bool EMove( Charactor *Monsters, Monster *Ori , int mc , int px , int py , point base[21][80] , char temp, Player *p , string *atr)
 {
   bool dead = false;
@@ -244,16 +230,19 @@ char PCMove( Charactor *M ,  point base[21][80], WINDOW **game , char store,  Mo
 	  base[M->x][M->y].value = '@';
 	  check = false;
 	  break;
+	  //Monster list command
 	case 'm':
 	  MonsterList(Ori,mc,M->x,M->y);
 	  PrintMonster(game, Ori , mc,base,M->x,M->y,stair,Dstair,visite,*ob,(Player*)M);
 	  break;
+	  //up stair
 	case '<':
 	  if(M->x == stair/80 && M->y == stair%80)
 	    {
 	      store = '^';
 	      check = false;
 	    }
+	  //Down stair
 	case '>':
 	  if(M->x == Dstair/80 && M->y == Dstair%80)
 	    {
@@ -261,21 +250,31 @@ char PCMove( Charactor *M ,  point base[21][80], WINDOW **game , char store,  Mo
 	      check = false;
 	    }
 	  break;
+	  //bagpack slot command
 	case 'i':
 	  slotList((Player*)M , base , ob);
 	  PrintMonster(game, Ori , mc,base,M->x,M->y,stair,Dstair,visite,*ob,(Player*)M);
 	  break;
+	  // equipment slot command
 	case 'e':
 	  equiList((Player*)M);
 	  PrintMonster(game, Ori , mc,base,M->x,M->y,stair,Dstair,visite,*ob,(Player*)M);
 	  break;
+	  // Monster description command
 	case 'L':
 	  CheckMonster(game,Ori,base,mc ,!visite);
 	  PrintMonster(game, Ori, mc, base , M->x, M->y , stair,Dstair , visite, *ob , (Player*)M);
 	  break;
+	  //spell command
 	case 's':
-	  spellList(game , Ori , base,(Player*)M,visite , mc);
+	  spellList(game , Ori , base,(Player*)M,visite , mc,stair,Dstair,*ob);
 	  PrintMonster(game, Ori , mc,base,M->x,M->y,stair,Dstair,visite,*ob,(Player*)M);
+	  break;
+	  //range attack command
+	case 'a':
+	  ((Player*)M)->RangeAttack(game,base,Ori,visite,mc);
+	  PrintMonster(game,Ori,mc,base,M->x,M->y,stair,Dstair,visite, *ob,(Player*)M);
+	  check = false;
 	  break;
 	}
       }

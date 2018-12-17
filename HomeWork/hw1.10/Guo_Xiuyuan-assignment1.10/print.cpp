@@ -111,6 +111,7 @@ void PrintMonster(WINDOW **game , Monster *ms , int mc ,  point base[21][80] , i
 	}
     }
 
+  //mvwprintw(*game , 21 , 0 , "                           ");
   mvwprintw(*game , 22 , 3 , "                        ");
   mvwprintw(*game, 22 , 3 , "Player HP: %d" , p->HP);
   
@@ -367,7 +368,7 @@ void printspell(WINDOW **list , Player *p , int highlight)
     }
 }
 
-void spellList(WINDOW **game , Monster*Ori , point base[21][80] ,Player *p, bool fog , int mc)
+void spellList(WINDOW **game , Monster*Ori , point base[21][80] ,Player *p, bool fog , int mc , int stair , int Dstair, vector<objects> obj)
 {
   bool use = false;
   int highlight = 0;
@@ -413,9 +414,13 @@ void spellList(WINDOW **game , Monster*Ori , point base[21][80] ,Player *p, bool
   wrefresh(slist);
   delwin(slist);
 
+  
+  
   if(use)
-    activeSpell(game , Ori , base , fog , p , p->spell.at(highlight) , mc);
-
+    {
+      PrintMonster(game,Ori,mc,base,p->x,p->y,stair,Dstair,fog,obj,p);
+      activeSpell(game , Ori , base , fog , p , p->spell.at(highlight) , mc);
+    }
 }
 
 void slotList(Player *p , point base[21][80] , vector<objects> *obj)
@@ -657,7 +662,7 @@ void activeSpell(WINDOW **game , Monster*Ori , point base[21][80] , bool fog , P
       switch(ch)
 	{
 	case KEY_UP:
-	  if(x-1 > 0 && abs(x - p->x) <= spell.range)
+	  if(x-1 > 0 && (p->x -x) <= spell.range)
 	    {
 	      mvwprintw(*game, x , y , "%c" , temp);
 	      x--;
@@ -675,7 +680,7 @@ void activeSpell(WINDOW **game , Monster*Ori , point base[21][80] , bool fog , P
 	    }
 	  break;
 	case KEY_DOWN:
-	  if(x+1 <=19 &&  abs(x - p->x) <= spell.range )
+	  if(x+1 <=19 &&  (x - p->x) <= spell.range )
 	    {
 	      mvwprintw(*game, x , y , "%c" , temp);
 	      x++;
@@ -693,7 +698,7 @@ void activeSpell(WINDOW **game , Monster*Ori , point base[21][80] , bool fog , P
 	    }
 	  break;
 	case KEY_LEFT:
-	  if(y-1 >0 &&  abs(y - p->y) <= spell.range)
+	  if(y-1 >0 &&  (p->y - y) <= spell.range)
 	    {
 	      mvwprintw(*game, x , y , "%c" , temp);
 	      y--;
@@ -711,7 +716,7 @@ void activeSpell(WINDOW **game , Monster*Ori , point base[21][80] , bool fog , P
 	    }
 	  break;
 	case KEY_RIGHT:
-	  if(y+1 <=78 &&  abs(y - p->y) <= spell.range)
+	  if(y+1 <=78 &&  (y - p->y) <= spell.range)
 	    {
 	      mvwprintw(*game, x , y , "%c" , temp);
 	      y++;
