@@ -1,0 +1,16 @@
+Command List:
+
+'a' - this command is the ranged attack command that can be used if there is a ranged weapon on you, if you don;t it will say that please load the range weapon;
+	
+	'a' - after press 'a' with ranged weapon then press 'a' again to attack the monster if you attack a random cell it will promote you to attack monster;
+
+'i' - same use for the last assignment that you can open the bag-pack slot;
+	's' - after pick up the book '?' you can see it in your slot open the slot by using 'i' and to learn the spell jsut press 's' with highlight on the book;
+
+'s' - the spell slot that will show all the spell you have learned;
+	'u' - pick the right spell with hightlight, then you can use it just like what we did teleport;
+		's'- on the use spell mode 'u' you can press 's' to actually use the spell from that point everything will looks green so it mean this area has been poisoned.
+
+'e' - A quit command for all the slot or list or activeity;
+
+
